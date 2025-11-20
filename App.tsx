@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { ShoppingBag, Loader2, AlertCircle, Clock } from 'lucide-react';
 import SearchBar from './components/SearchBar';
@@ -158,9 +159,10 @@ const App: React.FC = () => {
       console.error("搜尋發生錯誤:", err);
       setError("連線 AI 發生錯誤，已切換為本機展示資料。");
       // 錯誤時 fallback 到本地資料，讓使用者至少看得到東西
-      const lowerQuery = query.toLowerCase();
+      // 直接使用 query.toLowerCase() 避免定義未使用變數
       const filtered = PRODUCTS.filter((product) => {
-          return product.keyword.toLowerCase().includes(lowerQuery) || product.name.toLowerCase().includes(lowerQuery);
+          return product.keyword.toLowerCase().includes(query.toLowerCase()) || 
+                 product.name.toLowerCase().includes(query.toLowerCase());
       });
       setResults(filtered.sort((a, b) => a.price - b.price));
     } finally {
