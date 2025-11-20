@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ShoppingBag, Loader2, AlertCircle, Clock } from 'lucide-react';
 import SearchBar from './components/SearchBar';
 import ProductCard from './components/ProductCard';
@@ -161,7 +160,7 @@ const App: React.FC = () => {
       // 錯誤時 fallback 到本地資料，讓使用者至少看得到東西
       const lowerQuery = query.toLowerCase();
       const filtered = PRODUCTS.filter((product) => {
-          return product.keyword.includes(query) || product.name.includes(query);
+          return product.keyword.toLowerCase().includes(lowerQuery) || product.name.toLowerCase().includes(lowerQuery);
       });
       setResults(filtered.sort((a, b) => a.price - b.price));
     } finally {
