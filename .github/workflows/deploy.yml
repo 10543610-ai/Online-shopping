@@ -26,6 +26,8 @@ jobs:
 
       - name: Build
         run: npm run build # 這會執行 package.json 中的 build 指令
+         env:
+          API_KEY: ${{ secrets.API_KEY }
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
