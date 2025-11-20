@@ -7,9 +7,13 @@ import { PRODUCTS } from './constants';
 import { Product } from './types';
 import { GoogleGenAI, Type } from "@google/genai";
 
-// 初始化 Gemini API
-// 注意：在實際生產環境中，API Key 應該由環境變數注入，且盡量避免在純前端暴露
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 安全取得 AI Client 的輔助函式
+// 避免在沒有 API Key 的環境下直接 new GoogleGenAI 導致錯誤
+const getAiClient = () => {
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) return null;
+  return new GoogleGenAI({ apiKey });
+};
 
 // 產生各賣場真實搜尋連結的輔助函式
 const getPlatformUrl = (platformCode: string, keyword: string): string => {
@@ -71,7 +75,9 @@ const App: React.FC = () => {
     addToHistory(query);
 
     try {
-      if (useAiSearch && process.env.API_KEY) {
+      const aiClient = getAiClient();
+      
+      if (useAiSearch && aiClient) {
         // 使用 Gemini AI 進行動態搜尋
         const model = "gemini-2.5-flash";
         
@@ -87,7 +93,7 @@ const App: React.FC = () => {
           4. url 欄位請留空字串，後端會自動產生。
         `;
 
-        const response = await ai.models.generateContent({
+        const response = await aiClient.models.generateContent({
           model: model,
           contents: prompt,
           config: {
@@ -135,7 +141,10 @@ const App: React.FC = () => {
 
       } else {
         // 備用方案：如果沒有 API Key 或關閉 AI 模式，使用原本的靜態過濾
-        console.warn("未偵測到 API Key，切換回靜態資料模式。");
+        if (!aiClient && useAiSearch) {
+           console.warn("未偵測到 API Key，已自動切換回本機範例模式。");
+        }
+        
         const lowerQuery = query.toLowerCase();
         const filtered = PRODUCTS.filter((product) => {
           const keywordMatch = product.keyword.toLowerCase().includes(lowerQuery);
